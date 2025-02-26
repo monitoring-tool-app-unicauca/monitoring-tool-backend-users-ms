@@ -2,8 +2,8 @@ package co.edu.unicauca.monitoring.tool.backend.users.ms.business;
 
 
 import co.edu.unicauca.monitoring.tool.backend.users.ms.config.MessageLoader;
-import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.exception.BusinessRuleException;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.mapper.IUserMapper;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.model.User;
@@ -11,7 +11,6 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IUserReposito
 import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +26,13 @@ public class UserBusinessImpl implements IUserBusiness {
     private final IUserMapper userMapper;
 
     @Override
-    public ResponseDto<UserDto> createUser(UserDto userDto) {
+    public ResponseDto<UserDto> createUser(UserDto payload) {
 
-        User user = this.userMapper.toDomain(userDto);
+        User user = this.userMapper.toDomain(payload);
         User userSaved = userRepository.save(user);
         logger.info("User has been created!");
         return new ResponseDto<>(HttpStatus.CREATED.value(),
-            MessageLoader.getInstance().getMessage(MessagesConstants.IM001, userDto.getDocumentNumber()),
+            MessageLoader.getInstance().getMessage(MessagesConstants.IM002),
             userMapper.toDto(userSaved));
     }
 
@@ -41,47 +40,43 @@ public class UserBusinessImpl implements IUserBusiness {
     public ResponseDto<UserDto> getUserById(Long userId) {
 
         User user = this.userRepository.findById(userId)
-            .orElseThrow(() -> new BusinessRuleException(HttpStatus.NOT_FOUND.value(),
-                MessagesConstants.EM001, MessageLoader.getInstance().getMessage(MessagesConstants.EM001, userId)));
+            .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
+                MessagesConstants.EM001, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, userId)));
         logger.info("User has been found!");
         return new ResponseDto<>(HttpStatus.OK.value(),
-            MessageLoader.getInstance().getMessage(MessagesConstants.IM001, userId),
+            MessageLoader.getInstance().getMessage(MessagesConstants.IM001),
             userMapper.toDto(user));
     }
 
     @Override
-    public ResponseDto<UserDto> updateUser(Long id, UserDto userDto) {
-        if (userDto == null || StringUtils.isEmpty(userDto.getDocumentNumber())) {
-            throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
-                MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, "userDto"));
-        }
+    public ResponseDto<UserDto> updateUser(Long id, UserDto payload) {
 
         User user = this.userRepository.findById(id)
-            .orElseThrow(() -> new BusinessRuleException(HttpStatus.NOT_FOUND.value(),
-                MessagesConstants.EM001, MessageLoader.getInstance().getMessage(MessagesConstants.EM001, id.toString())));
+            .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
+                MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, id)));
 
-        user.setFirstName(userDto.getFirstName());
-        user.setPhoneNumber(userDto.getPhoneNumber());
-        user.setSecondName(userDto.getSecondName());
-        this.userRepository.save(user);
+        user.setFirstName(payload.getFirstName());
+        user.setPhoneNumber(payload.getPhoneNumber());
+        user.setSecondName(payload.getSecondName());
+        User userSaved = this.userRepository.save(user);
         logger.info("User has been updated!");
         return new ResponseDto<>(HttpStatus.OK.value(),
-            MessageLoader.getInstance().getMessage(MessagesConstants.IM001, userDto.getDocumentNumber()),
-            userMapper.toDto(user));
+            MessageLoader.getInstance().getMessage(MessagesConstants.IM003),
+            userMapper.toDto(userSaved));
     }
 
     @Override
     public ResponseDto<Void> deleteUser(Long userId) {
 
         User user = this.userRepository.findById(userId)
-            .orElseThrow(() -> new BusinessRuleException(HttpStatus.NOT_FOUND.value(),
-                MessagesConstants.EM001, MessageLoader.getInstance().getMessage(MessagesConstants.EM001, userId)));
+            .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
+                MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, userId)));
 
         userRepository.delete(user);
         logger.info("User has been deleted!");
 
-        return new ResponseDto<>(HttpStatus.NO_CONTENT.value(),
-            MessageLoader.getInstance().getMessage(MessagesConstants.IM001, userId));
+        return new ResponseDto<>(HttpStatus.OK.value(),
+            MessageLoader.getInstance().getMessage(MessagesConstants.IM003));
     }
 
     @Override
@@ -91,6 +86,6 @@ public class UserBusinessImpl implements IUserBusiness {
                 .toList();
         logger.info("All users have been fetched!");
         return new ResponseDto<>(HttpStatus.OK.value(),
-            MessageLoader.getInstance().getMessage(MessagesConstants.IM001, "users"), usersResponse);
+            MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);
     }
 }

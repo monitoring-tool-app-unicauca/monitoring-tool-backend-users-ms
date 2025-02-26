@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Tag(name = "User Backend APIs", description = "API endpoints for managing user operations")
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 @RequiredArgsConstructor(onConstructor = @__ (@Autowired))
 public class UserRest {
 
