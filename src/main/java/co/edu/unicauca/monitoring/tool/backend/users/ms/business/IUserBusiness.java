@@ -13,10 +13,10 @@ public interface IUserBusiness {
     /**
      * Creates a new user.
      *
-     * @param userDto The user information to be created.
+     * @param payload The user information to be created.
      * @return A ResponseDto containing the created UserDto.
      */
-    ResponseDto<UserDto> createUser(final UserDto userDto);
+    ResponseDto<UserDto> createUser(final UserDto payload);
 
     /**
      * Retrieves a UserDto based on the provided user ID.
@@ -29,10 +29,10 @@ public interface IUserBusiness {
     /**
      * Updates an existing user.
      *
-     * @param userDto The user information to be updated.
+     * @param payload The user information to be updated.
      * @return A ResponseDto containing the updated UserDto.
      */
-    ResponseDto<UserDto> updateUser(final Long id, final UserDto userDto);
+    ResponseDto<UserDto> updateUser(final Long id, final UserDto payload);
 
     /**
      * Deletes a user by their ID.
