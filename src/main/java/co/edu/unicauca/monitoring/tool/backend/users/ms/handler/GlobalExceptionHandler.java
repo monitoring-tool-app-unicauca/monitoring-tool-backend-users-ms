@@ -120,7 +120,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ResponseDto<Object>> handleBusinessRuleException(
         BusinessRuleException e) {
-        log.error("BusinessRuleException occurred: {}", e.getMessage(), e);
         return new ResponseDto<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), e.getErrorCode()).of();
     }
 

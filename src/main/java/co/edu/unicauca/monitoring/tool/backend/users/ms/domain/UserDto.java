@@ -5,7 +5,7 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnUpdate;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,5 +33,10 @@ public class UserDto {
     private Long phoneNumber;
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
     private String email;
-    private List<RoleDto> roles;
+    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,12}$"
+        ,groups = {OnCreate.class}, message = MessagesConstants.EM008)
+    private String password;
+//    private List<RoleDto> roles;
+
 }

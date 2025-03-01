@@ -1,9 +1,10 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.business;
 
 
-import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * An interface for Customer Business operations.
@@ -48,5 +49,22 @@ public interface IUserBusiness {
      * @return A ResponseDto containing a list of UserDto objects representing all users.
      */
     ResponseDto<List<UserDto>> getAllUsers();
+
+    /**
+     * Uploads a profile image for a user.
+     *
+     * @param userId The ID of the user whose profile image is being uploaded.
+     * @param file The image file to be uploaded.
+     * @return A response indicating the success or failure of the upload.
+     */
+    ResponseDto<Void> uploadProfileImage(Long userId, MultipartFile file);
+
+    /**
+     * Retrieves the profile image of a user.
+     *
+     * @param userId The ID of the user whose profile image is being retrieved.
+     * @return A response containing the profile image as a byte array.
+     */
+    ResponseDto<byte[]> getProfileImage(Long userId);
 }
 

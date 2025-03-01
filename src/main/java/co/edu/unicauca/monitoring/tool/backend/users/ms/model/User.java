@@ -1,7 +1,12 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.model;
 
-import jakarta.persistence.*;
-import java.util.List;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,11 +44,18 @@ public class User {
     @Column(length = 100)
     private String email;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "user_role",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private List<Role> roles;
+    @Column(length = 12)
+    private String password;
+
+    @Lob
+    @Column(name = "profile_image", columnDefinition = "LONGBLOB")
+    private byte[] profileImage;
+
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//        name = "user_role",
+//        joinColumns = @JoinColumn(name = "user_id"),
+//        inverseJoinColumns = @JoinColumn(name = "role_id")
+//    )
+//    private List<Role> roles;
 }
