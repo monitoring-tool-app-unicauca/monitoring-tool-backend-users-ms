@@ -1,15 +1,24 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.rest;
 
 import co.edu.unicauca.monitoring.tool.backend.users.ms.business.IUserBusiness;
-import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * REST controller for User operations.
@@ -70,6 +79,31 @@ public class UserRest {
     @DeleteMapping("/{userId}")
     public ResponseEntity<ResponseDto<Void>> deleteUser(@PathVariable Long userId) {
         return userBusiness.deleteUser(userId).of();
+    }
+
+    /**
+     * Uploads a profile image for the specified user.
+     *
+     * @param userId The ID of the user.
+     * @param file The image file to be uploaded.
+     * @return A response indicating the success or failure of the upload.
+     */
+    @PatchMapping("/{userId}/profile-image")
+    public ResponseEntity<ResponseDto<Void>> uploadProfileImage(@PathVariable Long userId,
+                                                                @RequestParam MultipartFile file) {
+        return userBusiness.uploadProfileImage(userId, file).of();
+    }
+
+    /**
+     * Retrieves the profile image of the specified user.
+     *
+     * @param userId The ID of the user.
+     * @return The profile image as a byte array with JPEG content type.
+     */
+    @GetMapping("/{userId}/profile-image")
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable Long userId) {
+        ResponseDto<byte[]> response = userBusiness.getProfileImage(userId);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(response.getData());
     }
 
 
