@@ -1,7 +1,8 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.util;
 
 public class MessagesConstants {
-    private MessagesConstants(){}
+    private MessagesConstants() {
+    }
 
     /*Info Messages*/
     public static final String IM001 = "IM001";
@@ -26,5 +27,7 @@ public class MessagesConstants {
     public static final String EM015 = "EM015";
     public static final String EM016 = "EM016";
     public static final String EM017 = "EM017";
+    public static final String EM018 = "EM018";
+    public static final String EM019 = "EM019";
 
 }
