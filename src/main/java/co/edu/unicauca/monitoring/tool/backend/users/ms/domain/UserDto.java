@@ -4,7 +4,10 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnCreate;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnUpdate;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,13 +32,16 @@ public class UserDto {
     private String firstLastName;
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
     private String secondLastName;
-    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
+    @NotNull(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
     private Long phoneNumber;
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
+    @Email(message = MessagesConstants.EM018, groups = {OnCreate.class})
     private String email;
-    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,12}$"
-        ,groups = {OnCreate.class}, message = MessagesConstants.EM008)
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class})
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,16}$"
+        ,groups = {OnCreate.class}, message = MessagesConstants.EM018)
     private String password;
 //    private List<RoleDto> roles;
 

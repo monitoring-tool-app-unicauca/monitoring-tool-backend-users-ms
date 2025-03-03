@@ -1,6 +1,5 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.business;
 
-
 import co.edu.unicauca.monitoring.tool.backend.users.ms.config.MessageLoader;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
@@ -16,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,11 +26,17 @@ public class UserBusinessImpl implements IUserBusiness {
 
     private final IUserRepository userRepository;
     private final IUserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ResponseDto<UserDto> createUser(UserDto payload) {
-
-        User user = this.userMapper.toDomain(payload);
+        if (userRepository.findByEmailIgnoreCase(payload.getEmail()).isPresent()) {
+            throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                MessagesConstants.EM019,
+                MessageLoader.getInstance().getMessage(MessagesConstants.EM019, payload.getEmail()));
+        }
+        User user = userMapper.toDomain(payload);
+        user.setPassword(passwordEncoder.encode(payload.getPassword()));
         User userSaved = userRepository.save(user);
         logger.info("User has been created!");
         return new ResponseDto<>(HttpStatus.CREATED.value(),
@@ -40,8 +46,7 @@ public class UserBusinessImpl implements IUserBusiness {
 
     @Override
     public ResponseDto<UserDto> getUserById(Long userId) {
-
-        User user = this.userRepository.findById(userId)
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
                 MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, userId)));
         logger.info("User has been found!");
@@ -52,15 +57,18 @@ public class UserBusinessImpl implements IUserBusiness {
 
     @Override
     public ResponseDto<UserDto> updateUser(Long id, UserDto payload) {
-
-        User user = this.userRepository.findById(id)
+        User user = userRepository.findById(id)
             .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
                 MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, id)));
 
         user.setFirstName(payload.getFirstName());
-        user.setPhoneNumber(payload.getPhoneNumber());
         user.setSecondName(payload.getSecondName());
-        User userSaved = this.userRepository.save(user);
+        user.setFirstLastName(payload.getFirstLastName());
+        user.setSecondLastName(payload.getSecondLastName());
+        user.setPhoneNumber(payload.getPhoneNumber());
+        user.setEmail(payload.getEmail());
+
+        User userSaved = userRepository.save(user);
         logger.info("User has been updated!");
         return new ResponseDto<>(HttpStatus.OK.value(),
             MessageLoader.getInstance().getMessage(MessagesConstants.IM003),
@@ -69,8 +77,7 @@ public class UserBusinessImpl implements IUserBusiness {
 
     @Override
     public ResponseDto<Void> deleteUser(Long userId) {
-
-        User user = this.userRepository.findById(userId)
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
                 MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, userId)));
 
@@ -85,7 +92,7 @@ public class UserBusinessImpl implements IUserBusiness {
     public ResponseDto<List<UserDto>> getAllUsers() {
         List<UserDto> usersResponse = userRepository.findAll().stream()
             .map(userMapper::toDto)
-                .toList();
+            .toList();
         logger.info("All users have been fetched!");
         return new ResponseDto<>(HttpStatus.OK.value(),
             MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);
@@ -114,5 +121,16 @@ public class UserBusinessImpl implements IUserBusiness {
                 MessageLoader.getInstance().getMessage(MessagesConstants.EM002, userId), MessagesConstants.EM002));
         return new ResponseDto<>(HttpStatus.OK.value(),
             MessageLoader.getInstance().getMessage(MessagesConstants.IM001), user.getProfileImage());
+    }
+
+    @Override
+    public ResponseDto<UserDto> getUserByEmail(String email) {
+        User user = userRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, email)));
+      logger.info("User found by email: {}", email);
+        return new ResponseDto<>(HttpStatus.OK.value(),
+            MessageLoader.getInstance().getMessage(MessagesConstants.IM001),
+            userMapper.toDto(user));
     }
 }

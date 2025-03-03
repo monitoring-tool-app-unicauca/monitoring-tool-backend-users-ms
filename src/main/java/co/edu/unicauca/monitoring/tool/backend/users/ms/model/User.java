@@ -44,7 +44,6 @@ public class User {
     @Column(length = 100)
     private String email;
 
-    @Column(length = 12)
     private String password;
 
     @Lob

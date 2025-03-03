@@ -3,12 +3,15 @@ package co.edu.unicauca.monitoring.tool.backend.users.ms.rest;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.business.IUserBusiness;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnCreate;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnUpdate;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,7 +40,7 @@ public class UserRest {
      * @return A response containing the created user.
      */
     @PostMapping
-    public ResponseEntity<ResponseDto<UserDto>> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<ResponseDto<UserDto>> createUser(@RequestBody @Validated(OnCreate.class) UserDto userDto) {
         return userBusiness.createUser(userDto).of();
     }
 
@@ -61,13 +64,24 @@ public class UserRest {
     }
 
     /**
+     * Gets a user by their email.
+     * @param email The email of the user to fetch.
+     * @return A response containing the user data.
+     */
+    @GetMapping("/email")
+    public ResponseEntity<ResponseDto<UserDto>> getUserByEmail(@RequestParam String email) {
+        return userBusiness.getUserByEmail(email).of();
+    }
+
+    /**
      * Updates an existing user.
      * @param userId The ID of the user to update.
      * @param userDto The new user data to update.
      * @return A response containing the updated user data.
      */
     @PatchMapping("/{userId}")
-    public ResponseEntity<ResponseDto<UserDto>> updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
+    public ResponseEntity<ResponseDto<UserDto>> updateUser(@PathVariable Long userId,
+                                                           @RequestBody @Validated(OnUpdate.class) UserDto userDto) {
         return userBusiness.updateUser(userId, userDto).of();
     }
 

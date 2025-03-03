@@ -66,5 +66,14 @@ public interface IUserBusiness {
      * @return A response containing the profile image as a byte array.
      */
     ResponseDto<byte[]> getProfileImage(Long userId);
+
+    /**
+     * Retrieves a UserDto based on the provided email.
+     *
+     * @param email The email used to fetch the user information.
+     * @return A ResponseDto containing the UserDto information if found, or an appropriate response if not found.
+     */
+    ResponseDto<UserDto> getUserByEmail(String email);
+
 }
 

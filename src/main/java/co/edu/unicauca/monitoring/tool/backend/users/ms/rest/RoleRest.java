@@ -3,11 +3,14 @@ package co.edu.unicauca.monitoring.tool.backend.users.ms.rest;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.business.IRoleBusiness;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.RoleDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnCreate;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnUpdate;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,7 +37,7 @@ public class RoleRest {
    * @return A response containing the created user.
    */
   @PostMapping
-  public ResponseEntity<ResponseDto<RoleDto>> createRole(@RequestBody RoleDto payload) {
+  public ResponseEntity<ResponseDto<RoleDto>> createRole(@RequestBody @Validated(OnCreate.class) RoleDto payload) {
     return roleBusiness.createRole(payload).of();
   }
 
@@ -64,7 +67,8 @@ public class RoleRest {
    * @return A response containing the updated user data.
    */
   @PatchMapping("/{roleId}")
-  public ResponseEntity<ResponseDto<RoleDto>> updateRole(@PathVariable Long roleId, @RequestBody RoleDto payload) {
+  public ResponseEntity<ResponseDto<RoleDto>> updateRole(@PathVariable Long roleId,
+                                                         @RequestBody @Validated(OnUpdate.class) RoleDto payload) {
     return roleBusiness.updateRole(roleId, payload).of();
   }
 
