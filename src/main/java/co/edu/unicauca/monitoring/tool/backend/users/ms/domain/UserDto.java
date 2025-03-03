@@ -25,13 +25,9 @@ public class UserDto {
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
     private String documentNumber;
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
-    private String firstName;
+    private String name;
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
-    private String secondName;
-    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
-    private String firstLastName;
-    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
-    private String secondLastName;
+    private String lastName;
     @NotNull(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
     private Long phoneNumber;
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})

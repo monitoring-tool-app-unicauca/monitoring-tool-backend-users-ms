@@ -75,5 +75,14 @@ public interface IUserBusiness {
      */
     ResponseDto<UserDto> getUserByEmail(String email);
 
+    /**
+     * Retrieves a list of users whose name contains the specified substring.
+     *
+     * @param name The substring to search for in usernames.
+     * @return A ResponseDto containing a list of matching UserDto objects.
+     */
+    ResponseDto<List<UserDto>> getUsersByNameContains(String name);
+
+
 }
 
