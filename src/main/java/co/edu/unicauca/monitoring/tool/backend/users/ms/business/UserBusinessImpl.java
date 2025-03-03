@@ -61,10 +61,15 @@ public class UserBusinessImpl implements IUserBusiness {
             .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
                 MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, id)));
 
-        user.setFirstName(payload.getFirstName());
-        user.setSecondName(payload.getSecondName());
-        user.setFirstLastName(payload.getFirstLastName());
-        user.setSecondLastName(payload.getSecondLastName());
+        if (!payload.getEmail().equalsIgnoreCase(user.getEmail())){
+            if (userRepository.findByEmailIgnoreCase(payload.getEmail()).isPresent()) {
+                throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                    MessagesConstants.EM019,
+                    MessageLoader.getInstance().getMessage(MessagesConstants.EM019, payload.getEmail()));
+            }
+        }
+        user.setName(payload.getName());
+        user.setLastName(payload.getLastName());
         user.setPhoneNumber(payload.getPhoneNumber());
         user.setEmail(payload.getEmail());
 
@@ -132,5 +137,14 @@ public class UserBusinessImpl implements IUserBusiness {
         return new ResponseDto<>(HttpStatus.OK.value(),
             MessageLoader.getInstance().getMessage(MessagesConstants.IM001),
             userMapper.toDto(user));
+    }
+
+    @Override
+    public ResponseDto<List<UserDto>> getUsersByNameContains(String name) {
+        List<UserDto> usersResponse = userRepository.findAllByNameContainsIgnoreCase(name).stream()
+            .map(userMapper::toDto)
+            .toList();
+        return new ResponseDto<>(HttpStatus.OK.value(),
+            MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);
     }
 }

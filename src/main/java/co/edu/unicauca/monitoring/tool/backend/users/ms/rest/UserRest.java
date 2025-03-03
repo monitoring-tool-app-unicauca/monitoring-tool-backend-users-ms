@@ -68,9 +68,19 @@ public class UserRest {
      * @param email The email of the user to fetch.
      * @return A response containing the user data.
      */
-    @GetMapping("/email")
+    @GetMapping("/by-email")
     public ResponseEntity<ResponseDto<UserDto>> getUserByEmail(@RequestParam String email) {
         return userBusiness.getUserByEmail(email).of();
+    }
+
+    /**
+     * Gets a user by their email.
+     * @param name The name of the users to fetch.
+     * @return A response containing the user data.
+     */
+    @GetMapping("/by-name")
+    public ResponseEntity<ResponseDto<List<UserDto>>> getUserByNameContains(@RequestParam String name) {
+        return userBusiness.getUsersByNameContains(name).of();
     }
 
     /**

@@ -27,16 +27,10 @@ public class User {
     private String documentNumber;
 
     @Column(length = 100)
-    private String firstName;
+    private String name;
 
     @Column(length = 100)
-    private String secondName;
-
-    @Column(length = 100)
-    private String firstLastName;
-
-    @Column(length = 100)
-    private String secondLastName;
+    private String lastName;
 
     @Column(length = 35)
     private Long phoneNumber;
