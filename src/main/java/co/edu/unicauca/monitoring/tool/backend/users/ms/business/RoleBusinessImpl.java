@@ -27,13 +27,44 @@ public class RoleBusinessImpl implements IRoleBusiness {
 
   @Override
   public ResponseDto<RoleDto> createRole(RoleDto payload) {
+    validateRoleNameUniqueness(payload.getName());
+
     Role role = this.roleMapper.toDomain(payload);
-    Role userSaved = roleRepository.save(role);
-    logger.info("User has been created!");
+    Role roleSaved = roleRepository.save(role);
+    logger.info("Role has been created!");
     return new ResponseDto<>(HttpStatus.CREATED.value(),
         MessageLoader.getInstance().getMessage(MessagesConstants.IM002),
-        roleMapper.toDto(userSaved));
+        roleMapper.toDto(roleSaved));
   }
+
+  @Override
+  public ResponseDto<RoleDto> updateRole(Long id, RoleDto payload) {
+    Role role = this.roleRepository.findById(id)
+        .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
+            MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, id)));
+
+    if (!payload.getName().equalsIgnoreCase(role.getName())) {
+      validateRoleNameUniqueness(payload.getName());
+    }
+
+    role.setDescription(payload.getDescription());
+    role.setName(payload.getName());
+
+    Role roleSaved = this.roleRepository.save(role);
+    logger.info("Role has been updated!");
+    return new ResponseDto<>(HttpStatus.OK.value(),
+        MessageLoader.getInstance().getMessage(MessagesConstants.IM003),
+        roleMapper.toDto(roleSaved));
+  }
+
+  private void validateRoleNameUniqueness(String roleName) {
+    if (roleRepository.findByNameIgnoreCase(roleName).isPresent()) {
+      throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+          MessagesConstants.EM010,
+          MessageLoader.getInstance().getMessage(MessagesConstants.EM010, roleName));
+    }
+  }
+
 
   @Override
   public ResponseDto<RoleDto> getRoleById(Long id) {
@@ -46,19 +77,7 @@ public class RoleBusinessImpl implements IRoleBusiness {
         roleMapper.toDto(role));
   }
 
-  @Override
-  public ResponseDto<RoleDto> updateRole(Long id, RoleDto payload) {
-    Role role = this.roleRepository.findById(id)
-        .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
-            MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, id)));
 
-    role.setDescription(payload.getDescription());
-    Role roleSaved = this.roleRepository.save(role);
-    logger.info("User has been updated!");
-    return new ResponseDto<>(HttpStatus.OK.value(),
-        MessageLoader.getInstance().getMessage(MessagesConstants.IM003),
-        roleMapper.toDto(roleSaved));
-  }
 
   @Override
   public ResponseDto<Void> deleteRole(Long id) {

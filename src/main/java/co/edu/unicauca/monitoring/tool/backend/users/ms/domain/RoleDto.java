@@ -16,8 +16,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RoleDto {
-    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
     private Long roleId;
+    @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
+    private String name;
     @NotBlank(message = MessagesConstants.EM008, groups = {OnCreate.class, OnUpdate.class})
     private String description;
 }

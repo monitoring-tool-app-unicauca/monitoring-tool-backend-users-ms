@@ -6,10 +6,12 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.exception.BusinessRuleException;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.mapper.IUserMapper;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.model.User;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IRoleRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IUserRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,23 +28,55 @@ public class UserBusinessImpl implements IUserBusiness {
 
     private final IUserRepository userRepository;
     private final IUserMapper userMapper;
+    private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public ResponseDto<UserDto> createUser(UserDto payload) {
-        if (userRepository.findByEmailIgnoreCase(payload.getEmail()).isPresent()) {
-            throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
-                MessagesConstants.EM019,
-                MessageLoader.getInstance().getMessage(MessagesConstants.EM019, payload.getEmail()));
-        }
+        validateEmailUniqueness(payload.getEmail());
         User user = userMapper.toDomain(payload);
         user.setPassword(passwordEncoder.encode(payload.getPassword()));
+        updateUserData(user, payload);
+        return saveAndRespond(user, HttpStatus.CREATED, MessagesConstants.IM002);
+    }
+
+    @Override
+    public ResponseDto<UserDto> updateUser(Long id, UserDto payload) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
+                MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, id)));
+        if (!payload.getEmail().equalsIgnoreCase(user.getEmail())) {
+            validateEmailUniqueness(payload.getEmail());
+        }
+        updateUserData(user, payload);
+        return saveAndRespond(user, HttpStatus.OK, MessagesConstants.IM003);
+    }
+
+    private void validateEmailUniqueness(String email) {
+        if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
+            throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                MessagesConstants.EM019,
+                MessageLoader.getInstance().getMessage(MessagesConstants.EM019, email));
+        }
+    }
+
+    private void updateUserData(User user, UserDto payload) {
+        user.setName(payload.getName());
+        user.setLastName(payload.getLastName());
+        user.setPhoneNumber(payload.getPhoneNumber());
+        user.setEmail(payload.getEmail());
+        if (Objects.nonNull(payload.getRoleIds()) && !payload.getRoleIds().isEmpty())
+            user.setRoles(roleRepository.findAllById(payload.getRoleIds()));
+    }
+
+    private ResponseDto<UserDto> saveAndRespond(User user, HttpStatus status, String messageCode) {
         User userSaved = userRepository.save(user);
-        logger.info("User has been created!");
-        return new ResponseDto<>(HttpStatus.CREATED.value(),
-            MessageLoader.getInstance().getMessage(MessagesConstants.IM002),
+        return new ResponseDto<>(status.value(),
+            MessageLoader.getInstance().getMessage(messageCode),
             userMapper.toDto(userSaved));
     }
+
+
 
     @Override
     public ResponseDto<UserDto> getUserById(Long userId) {
@@ -55,30 +89,6 @@ public class UserBusinessImpl implements IUserBusiness {
             userMapper.toDto(user));
     }
 
-    @Override
-    public ResponseDto<UserDto> updateUser(Long id, UserDto payload) {
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
-                MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.EM002, id)));
-
-        if (!payload.getEmail().equalsIgnoreCase(user.getEmail())){
-            if (userRepository.findByEmailIgnoreCase(payload.getEmail()).isPresent()) {
-                throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
-                    MessagesConstants.EM019,
-                    MessageLoader.getInstance().getMessage(MessagesConstants.EM019, payload.getEmail()));
-            }
-        }
-        user.setName(payload.getName());
-        user.setLastName(payload.getLastName());
-        user.setPhoneNumber(payload.getPhoneNumber());
-        user.setEmail(payload.getEmail());
-
-        User userSaved = userRepository.save(user);
-        logger.info("User has been updated!");
-        return new ResponseDto<>(HttpStatus.OK.value(),
-            MessageLoader.getInstance().getMessage(MessagesConstants.IM003),
-            userMapper.toDto(userSaved));
-    }
 
     @Override
     public ResponseDto<Void> deleteUser(Long userId) {
