@@ -30,9 +30,3 @@ logging:
   level:
     root: INFO
 
-springdoc:
-  api-docs:
-    enabled: on
-  swagger-ui:
-    tags-sorter: 'alpha'
-    operations-sorter: 'alpha'

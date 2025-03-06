@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,7 @@ public class UserDto {
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,16}$"
         ,groups = {OnCreate.class}, message = MessagesConstants.EM018)
     private String password;
-//    private List<RoleDto> roles;
-
+    private List<Long> roleIds;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private List<RoleDto> roles;
 }
