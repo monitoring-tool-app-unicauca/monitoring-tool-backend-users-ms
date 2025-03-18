@@ -130,5 +130,14 @@ public class UserRest {
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(response.getData());
     }
 
+    /**
+     * Gets users by their IDs.
+     * @param ids The list of user IDs to fetch.
+     * @return A response containing the user data.
+     */
+    @GetMapping("/by-ids")
+    public ResponseEntity<ResponseDto<List<UserDto>>> getUsersByIds(@RequestParam List<Long> ids) {
+        return userBusiness.getUsersByIds(ids).of();
+    }
 
 }
