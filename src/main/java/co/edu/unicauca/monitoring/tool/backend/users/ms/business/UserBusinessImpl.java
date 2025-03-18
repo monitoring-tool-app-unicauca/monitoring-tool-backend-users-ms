@@ -157,4 +157,13 @@ public class UserBusinessImpl implements IUserBusiness {
         return new ResponseDto<>(HttpStatus.OK.value(),
             MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);
     }
+
+    @Override
+    public ResponseDto<List<UserDto>> getUsersByIds(List<Long> payload) {
+        List<UserDto> usersResponse = userRepository.findAllById(payload).stream()
+                .map(userMapper::toDto)
+                .toList();
+        return new ResponseDto<>(HttpStatus.OK.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);
+    }
 }

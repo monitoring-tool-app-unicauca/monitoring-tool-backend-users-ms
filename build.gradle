@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 	implementation 'org.hibernate.orm:hibernate-core:6.0.0.Final'
 	implementation 'org.springframework.security:spring-security-crypto:6.1.2'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {

@@ -83,6 +83,14 @@ public interface IUserBusiness {
      */
     ResponseDto<List<UserDto>> getUsersByNameContains(String name);
 
+    /**
+     * Retrieves a list of UserDto based on the provided user IDs.
+     *
+     * @param payload The list of user IDs used to fetch the user information.
+     * @return A ResponseDto containing a list of UserDto information if found, or an appropriate response if not found.
+     */
+    ResponseDto<List<UserDto>> getUsersByIds(final List<Long> payload);
+
 
 }
 
