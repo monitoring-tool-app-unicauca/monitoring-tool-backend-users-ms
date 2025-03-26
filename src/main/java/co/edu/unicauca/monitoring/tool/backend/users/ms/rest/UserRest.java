@@ -1,12 +1,12 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.rest;
 
 import co.edu.unicauca.monitoring.tool.backend.users.ms.business.IUserBusiness;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnCreate;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnUpdate;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * REST controller for User operations.
@@ -119,6 +121,17 @@ public class UserRest {
     }
 
     /**
+     * Uploads a profile image for the specified user.
+     *
+     * @return A response indicating the success or failure of the upload.
+     */
+    @PatchMapping("/reset-password")
+    public ResponseEntity<ResponseDto<UserDto>> updatePassword(@RequestBody @Validated(OnUpdate.class)
+                                                                PasswordRecoveryDto payload) {
+        return userBusiness.resetPassword(payload).of();
+    }
+
+    /**
      * Retrieves the profile image of the specified user.
      *
      * @param userId The ID of the user.
@@ -138,6 +151,17 @@ public class UserRest {
     @GetMapping("/by-ids")
     public ResponseEntity<ResponseDto<List<UserDto>>> getUsersByIds(@RequestParam List<Long> ids) {
         return userBusiness.getUsersByIds(ids).of();
+    }
+
+
+    /**
+     * Initiates the password reset process for a user.
+     * @param email The email of the user who wants to reset their password.
+     * @return A response indicating the success or failure of the password reset initiation.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseDto<Void>> forgotPassword(@RequestParam String email) {
+        return userBusiness.sendMailForgotPassword(email).of();
     }
 
 }

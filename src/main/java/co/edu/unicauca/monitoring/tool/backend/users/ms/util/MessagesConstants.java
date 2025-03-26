@@ -9,6 +9,7 @@ public class MessagesConstants {
     public static final String IM002 = "IM002";
     public static final String IM003 = "IM003";
     public static final String IM004 = "IM004";
+    public static final String IM005 = "IM005";
 
     public static final String EM001 = "EM001";
     public static final String EM002 = "EM002";
@@ -29,5 +30,6 @@ public class MessagesConstants {
     public static final String EM017 = "EM017";
     public static final String EM018 = "EM018";
     public static final String EM019 = "EM019";
-
+    public static final String EM020 = "EM020";
+    public static final String EM021 = "EM021";
 }
