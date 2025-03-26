@@ -1,25 +1,36 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.business;
 
 import co.edu.unicauca.monitoring.tool.backend.users.ms.config.MessageLoader;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryNotificationDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.To;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.exception.BusinessRuleException;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.mapper.IUserMapper;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.model.PasswordRecovery;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.model.User;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.publisher.IPasswordRecoveryPublisher;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IPasswordRecoveryRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IRoleRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IUserRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__ (@Autowired))
@@ -30,6 +41,12 @@ public class UserBusinessImpl implements IUserBusiness {
     private final IUserMapper userMapper;
     private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final IPasswordRecoveryPublisher passwordRecoveryPublisher;
+    private final IPasswordRecoveryRepository passwordRecoveryRepository;
+    @Value("${domain.password.notification.url}")
+    private String domainNotificationUrl;
+    @Value("${domain.password.notification.expires}")
+    private Integer tokenExpires;
 
     @Override
     public ResponseDto<UserDto> createUser(UserDto payload) {
@@ -165,5 +182,66 @@ public class UserBusinessImpl implements IUserBusiness {
                 .toList();
         return new ResponseDto<>(HttpStatus.OK.value(),
                 MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);
+    }
+
+    @Override
+    @Transactional
+    public ResponseDto<Void> sendMailForgotPassword(final String email) {
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                        MessagesConstants.EM002, MessageLoader.getInstance()
+                        .getMessage(MessagesConstants.EM002, email)));
+
+        final var passwordRecovery = passwordRecoveryRepository
+                .findFirstByEmailAndExpiresAfterOrderByExpiresDesc(email,
+                        LocalDateTime.now());
+
+        if (passwordRecovery.isPresent()) {
+            throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                    MessagesConstants.EM002, MessageLoader.getInstance().getMessage(MessagesConstants.IM005));
+        }
+
+        String token = UUID.randomUUID().toString();
+        String resetLink = domainNotificationUrl.concat("?token=").concat(token);
+        this.passwordRecoveryRepository
+                .save(PasswordRecovery.builder()
+                        .token(token)
+                        .email(user.getEmail())
+                        .expires(LocalDateTime.now().plusMinutes(tokenExpires))
+                        .build());
+        this.passwordRecoveryPublisher.publish(PasswordRecoveryNotificationDto.builder()
+                .urlResetLink(resetLink)
+                .recipient(To.builder().name(user.getName()).email(user.getEmail()).build())
+                .build());
+        logger.info("Password reset initiated for email: {}", email);
+        return new ResponseDto<>(HttpStatus.OK.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.IM002));
+    }
+
+    @Override
+    public ResponseDto<UserDto> resetPassword(final PasswordRecoveryDto payload) {
+        final var passwordRecovery = this.passwordRecoveryRepository.findById(payload.getToken())
+                .orElseThrow(() -> new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                        MessagesConstants.EM002, MessageLoader.getInstance()
+                        .getMessage(MessagesConstants.EM002, payload.getToken())));
+
+        final var user = this.userRepository.findByEmailIgnoreCase(passwordRecovery.getEmail())
+                .orElseThrow(() -> new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                        MessagesConstants.EM002, MessageLoader.getInstance()
+                        .getMessage(MessagesConstants.EM002, passwordRecovery.getEmail())));
+        final var now = LocalDateTime.now();
+        if (now.isAfter(passwordRecovery.getExpires())) {
+            throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                    MessagesConstants.EM020, MessageLoader.getInstance()
+                    .getMessage(MessagesConstants.EM020));
+        }
+        if (!payload.getPassword().equals(payload.getConfirmPassword())) {
+            throw new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                    MessagesConstants.EM021, MessageLoader.getInstance()
+                    .getMessage(MessagesConstants.EM021, payload.getToken()));
+        }
+        user.setPassword(this.passwordEncoder.encode(payload.getPassword()));
+        final var userSaved = this.userRepository.save(user);
+        return saveAndRespond(userSaved, HttpStatus.OK, MessagesConstants.IM003);
     }
 }

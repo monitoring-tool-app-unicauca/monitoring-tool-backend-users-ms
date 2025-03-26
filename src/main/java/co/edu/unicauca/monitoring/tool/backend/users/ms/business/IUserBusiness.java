@@ -1,10 +1,12 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.business;
 
 
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
-import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * An interface for Customer Business operations.
@@ -91,6 +93,20 @@ public interface IUserBusiness {
      */
     ResponseDto<List<UserDto>> getUsersByIds(final List<Long> payload);
 
+    /**
+     * Sends a forgot password email to the specified email address.
+     *
+     * @param email The email address to send the forgot password email to.
+     * @return A ResponseDto indicating the success or failure of the operation.
+     */
+    ResponseDto<Void> sendMailForgotPassword(final String email);
 
+    /**
+     * Resets the password based on the provided recovery information.
+     *
+     * @param payload The PasswordRecoveryDto containing recovery information.
+     * @return A ResponseDto containing the updated UserDto information.
+     */
+    ResponseDto<UserDto> resetPassword(final PasswordRecoveryDto payload);
 }
 
