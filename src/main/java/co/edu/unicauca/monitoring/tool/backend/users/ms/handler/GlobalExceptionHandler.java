@@ -6,8 +6,11 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ApiErrorDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.exception.BusinessRuleException;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+
+import java.security.SignatureException;
 import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
@@ -17,8 +20,10 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -85,6 +90,31 @@ public class GlobalExceptionHandler {
         return new ResponseDto<>(HttpStatus.BAD_REQUEST.value(),
             MessageLoader.getInstance().getMessage(MessagesConstants.EM011, ex.getPropertyName(),
                 Objects.requireNonNull(ex.getRequiredType()).getSimpleName()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseDto<Void> handleBadCredentialsException(BadCredentialsException ex) {
+        log.warn("Invalid Password: {}", ex.getMessage());
+        return new ResponseDto<>(HttpStatus.FORBIDDEN.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.EM021));
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseDto<Void> handleExpiredJwtException(ExpiredJwtException ex) {
+        return new ResponseDto<>(HttpStatus.FORBIDDEN.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.EM022));
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseDto<Void> handleExpiredSignatureException(SignatureException ex) {
+        return new ResponseDto<>(HttpStatus.FORBIDDEN.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.EM022));
     }
 
     /**

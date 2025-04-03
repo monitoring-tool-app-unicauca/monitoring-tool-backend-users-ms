@@ -35,4 +35,7 @@ domain:
       url: http://localhost:8090
       expires: 10
 
+jwt:
+  expiration: 3600000
+
 
