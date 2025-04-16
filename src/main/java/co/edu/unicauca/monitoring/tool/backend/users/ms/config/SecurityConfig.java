@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,9 +24,12 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
             .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(authz -> authz
-                            .requestMatchers(HttpMethod.POST,"/user", "/role", "/user/authenticate/**").permitAll()
+            .authorizeHttpRequests(auth -> auth
+                              //"/user/authenticate/**"
+                            .requestMatchers("/user/**", "/role/**").permitAll()
+//                            .requestMatchers(HttpMethod.GET,"/user/{userId}", "/user/by-ids").permitAll()
                             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                            .requestMatchers("/actuator/**").permitAll()
                             .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

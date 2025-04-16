@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -29,6 +28,9 @@ public class JwtConfig {
 
     @Value("${jwt.expiration}")
     private long expirationTime;
+
+    @Value("${jwt.secret}")
+    private String secret;
 
     private SecretKey signingKey;
 
@@ -45,7 +47,7 @@ public class JwtConfig {
 
     @PostConstruct
     public void init() {
-        this.signingKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        this.signingKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     private SecretKey getSigningKey() {
