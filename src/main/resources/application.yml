@@ -35,4 +35,8 @@ domain:
       url: http://localhost:8090
       expires: 10
 
+jwt:
+  expiration: 3600000
+  secret: ${SECRET_TOKEN:6IBwdiQm6JUC7nCL8PEm9Y8O7D41XYoMlnPD4a3cXTd5AHEgQjdRZAsiao5ysm9hquHjvIuigm4ACGzwTEFC0A==}
+
 

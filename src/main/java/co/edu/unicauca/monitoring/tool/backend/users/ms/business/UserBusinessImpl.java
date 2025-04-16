@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +37,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__ (@Autowired))
-public class UserBusinessImpl implements IUserBusiness {
+public class UserBusinessImpl implements IUserBusiness, UserDetailsService {
     private static final Logger logger = LoggerFactory.getLogger(UserBusinessImpl.class);
 
     private final IUserRepository userRepository;
@@ -244,4 +247,13 @@ public class UserBusinessImpl implements IUserBusiness {
         final var userSaved = this.userRepository.save(user);
         return saveAndRespond(userSaved, HttpStatus.OK, MessagesConstants.IM003);
     }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return this.userRepository.findByEmailIgnoreCase(username)
+                .orElseThrow(() -> new BusinessRuleException(HttpStatus.BAD_REQUEST.value(),
+                        MessagesConstants.EM002, MessageLoader.getInstance()
+                        .getMessage(MessagesConstants.EM002, username)));
+    }
+
 }

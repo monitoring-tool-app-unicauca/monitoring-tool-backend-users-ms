@@ -4,6 +4,8 @@ package co.edu.unicauca.monitoring.tool.backend.users.ms.business;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -108,5 +110,14 @@ public interface IUserBusiness {
      * @return A ResponseDto containing the updated UserDto information.
      */
     ResponseDto<UserDto> resetPassword(final PasswordRecoveryDto payload);
+
+    /**
+     * Loads user details based on the username.
+     *
+     * @param username The username of the user to be loaded.
+     * @return UserDetails of the user.
+     * @throws UsernameNotFoundException if the user is not found.
+     */
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 }
 

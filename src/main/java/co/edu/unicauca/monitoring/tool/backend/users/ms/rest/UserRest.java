@@ -1,16 +1,25 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.rest;
 
 import co.edu.unicauca.monitoring.tool.backend.users.ms.business.IUserBusiness;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.config.JwtConfig;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.config.MessageLoader;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.AuthenticationRequestDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.AuthenticationResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnCreate;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.rest.common.OnUpdate;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +44,20 @@ import java.util.List;
 public class UserRest {
 
     private final IUserBusiness userBusiness;
+    private final JwtConfig jwtConfig;
+    private final AuthenticationManager authenticationManager;
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<ResponseDto<AuthenticationResponseDto>> createAuthenticationToken(@RequestBody AuthenticationRequestDto payload) throws Exception {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(payload.getUsername(), payload.getPassword())
+        );
+        final UserDetails userDetails = userBusiness.loadUserByUsername(payload.getUsername());
+        final String jwt = jwtConfig.generateToken(userDetails);
+        return new ResponseDto<>(HttpStatus.OK.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.IM002),
+                AuthenticationResponseDto.builder().token(jwt).build()).of();
+    }
 
     /**
      * Creates a new user.
@@ -127,7 +150,7 @@ public class UserRest {
      */
     @PatchMapping("/reset-password")
     public ResponseEntity<ResponseDto<UserDto>> updatePassword(@RequestBody @Validated(OnUpdate.class)
-                                                                PasswordRecoveryDto payload) {
+                                                               PasswordRecoveryDto payload) {
         return userBusiness.resetPassword(payload).of();
     }
 
