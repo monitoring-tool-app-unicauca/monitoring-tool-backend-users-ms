@@ -14,6 +14,10 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -74,8 +78,9 @@ public class UserRest {
      * @return A response containing the list of all users.
      */
     @GetMapping
-    public ResponseEntity<ResponseDto<List<UserDto>>> getAllUsers() {
-        return userBusiness.getAllUsers().of();
+    public ResponseEntity<ResponseDto<Page<UserDto>>> getAllUsers(
+            @PageableDefault(size = 5, sort = "email", direction = Sort.Direction.ASC) Pageable pageable) {
+        return userBusiness.getAllUsers(pageable).of();
     }
 
     /**
