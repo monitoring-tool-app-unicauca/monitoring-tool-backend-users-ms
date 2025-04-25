@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -123,11 +125,11 @@ public class UserBusinessImpl implements IUserBusiness, UserDetailsService {
             MessageLoader.getInstance().getMessage(MessagesConstants.IM003));
     }
 
+
     @Override
-    public ResponseDto<List<UserDto>> getAllUsers() {
-        List<UserDto> usersResponse = userRepository.findAll().stream()
-            .map(userMapper::toDto)
-            .toList();
+    public ResponseDto<Page<UserDto>> getAllUsers(Pageable pageable) {
+        Page<UserDto> usersResponse = userRepository.findAll(pageable)
+            .map(userMapper::toDto);
         logger.info("All users have been fetched!");
         return new ResponseDto<>(HttpStatus.OK.value(),
             MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);

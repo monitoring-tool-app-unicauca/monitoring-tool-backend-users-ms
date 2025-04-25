@@ -9,10 +9,6 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-
-import java.security.SignatureException;
-import java.util.List;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,12 +19,15 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.security.SignatureException;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Global Exception Handler to manage various exception types.
@@ -37,6 +36,22 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+
+    /**
+     * Handles PropertyReferenceException for invalid sort properties.
+     *
+     * @param ex The PropertyReferenceException instance.
+     * @return Response entity containing error details.
+     */
+    @ExceptionHandler(org.springframework.data.mapping.PropertyReferenceException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseDto<Void> handlePropertyReferenceException(org.springframework.data.mapping.PropertyReferenceException ex) {
+        log.warn("Invalid sort property: {}", ex.getMessage());
+        return new ResponseDto<>(HttpStatus.BAD_REQUEST.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.EM023, ex.getPropertyName()));
+    }
 
     /**
      * Handles validation errors, including MethodArgumentNotValidException and ConstraintViolationException.

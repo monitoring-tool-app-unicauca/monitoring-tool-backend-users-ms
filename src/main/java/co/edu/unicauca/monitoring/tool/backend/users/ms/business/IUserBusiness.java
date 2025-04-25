@@ -4,6 +4,8 @@ package co.edu.unicauca.monitoring.tool.backend.users.ms.business;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,7 +54,7 @@ public interface IUserBusiness {
      *
      * @return A ResponseDto containing a list of UserDto objects representing all users.
      */
-    ResponseDto<List<UserDto>> getAllUsers();
+    ResponseDto<Page<UserDto>> getAllUsers(Pageable pageable);
 
     /**
      * Uploads a profile image for a user.
