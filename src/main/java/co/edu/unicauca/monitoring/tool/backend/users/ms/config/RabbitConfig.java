@@ -41,5 +41,4 @@ public class RabbitConfig {
         return new Queue(PASSWORD_RECOVERY_QUEUE, true);
     }
 
-
 }
