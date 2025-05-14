@@ -11,7 +11,7 @@ spring:
       max-request-size: 20MB
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/monitoring_db
+    url: jdbc:postgresql://db:5432/monitoring_db
     driver-class-name: org.postgresql.Driver
     username: monitoring-user
     password: monitoring
@@ -32,7 +32,7 @@ logging:
 domain:
   password:
     notification:
-      url: http://localhost:8090
+      url: http://notification-ms:8091
       expires: 10
 
 jwt:
