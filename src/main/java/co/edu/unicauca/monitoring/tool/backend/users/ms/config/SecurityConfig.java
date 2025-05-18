@@ -34,8 +34,8 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.PATCH, "/user/reset-password/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/user/forgot-password/**").permitAll()
-                    .requestMatchers(HttpMethod.GET,"/user/{userId}", "/user/by-ids", "/user/authenticate/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/user/forgot-password/**", "/user/authenticate/**").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/user/{userId}", "/user/by-ids").permitAll()
                     .requestMatchers("/actuator/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated()
