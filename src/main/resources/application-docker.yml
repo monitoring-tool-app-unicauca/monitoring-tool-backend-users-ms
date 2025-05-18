@@ -40,3 +40,9 @@ domain:
     notification:
       url: ${NOTIFICATION_URL}
       expires: ${NOTIFICATION_EXPIRES}
+admin:
+  email: ${ADMIN_EMAIL}
+  name: ${ADMIN_NAME}
+  lastname: ${ADMIN_LASTNAME}
+  document: ${ADMIN_DOCUMENT}
+  phone: ${ADMIN_PHONE}

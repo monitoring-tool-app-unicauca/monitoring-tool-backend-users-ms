@@ -17,6 +17,10 @@ public class RabbitConfig {
     public static final String ROUTING_KEY_PASSWORD_RECOVERY = "password.recovery";
     public static final String PASSWORD_RECOVERY_EXCHANGE = "password.recovery.exchange";
 
+    public static final String WELCOME_PASSWORD_QUEUE = "welcome.password.queue";
+    public static final String ROUTING_KEY_WELCOME_PASSWORD= "welcome.password";
+    public static final String WELCOME_PASSWORD_EXCHANGE = "welcome.password.exchange";
+
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
@@ -39,6 +43,23 @@ public class RabbitConfig {
     @Bean
     public Queue passwordRecoveryQueue() {
         return new Queue(PASSWORD_RECOVERY_QUEUE, true);
+    }
+
+    @Bean
+    public TopicExchange welcomePasswordExchange() {
+        return new TopicExchange(WELCOME_PASSWORD_EXCHANGE);
+    }
+
+    @Bean
+    public Queue welcomePasswordQueue() {
+        return new Queue(WELCOME_PASSWORD_QUEUE, true);
+    }
+
+    @Bean
+    public Binding bindingWelcomePassword() {
+        return BindingBuilder.bind(welcomePasswordQueue())
+                .to(welcomePasswordExchange())
+                .with(ROUTING_KEY_WELCOME_PASSWORD);
     }
 
 }

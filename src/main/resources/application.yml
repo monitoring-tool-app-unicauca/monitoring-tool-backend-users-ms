@@ -38,3 +38,10 @@ domain:
 jwt:
   expiration: 3600000
   secret: ${SECRET_TOKEN:6IBwdiQm6JUC7nCL8PEm9Y8O7D41XYoMlnPD4a3cXTd5AHEgQjdRZAsiao5ysm9hquHjvIuigm4ACGzwTEFC0A==}
+
+admin:
+  email: juliansmartinez@unicauca.edu.co
+  name: Paula Peña
+  lastname: App
+  document: 1061226854
+  phone: 3000000000

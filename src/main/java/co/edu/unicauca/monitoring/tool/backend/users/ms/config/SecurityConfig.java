@@ -33,9 +33,8 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.PATCH, "/reset-password/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/forgot-password/**").permitAll()
-                    .requestMatchers(HttpMethod.POST,"/user/**").permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/user/reset-password/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/user/forgot-password/**").permitAll()
                     .requestMatchers(HttpMethod.GET,"/user/{userId}", "/user/by-ids", "/user/authenticate/**").permitAll()
                     .requestMatchers("/actuator/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
