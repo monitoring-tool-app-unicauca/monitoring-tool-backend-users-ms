@@ -56,6 +56,14 @@ public interface IUserBusiness {
      */
     ResponseDto<Page<UserDto>> getAllUsers(Pageable pageable);
 
+
+    /**
+     * Retrieves all users by role.
+     *
+     * @return A ResponseDto containing a list of UserDto objects representing all users by role.
+     */
+    ResponseDto<Page<UserDto>> getAllUsersByRole(Long roleId, Pageable pageable);
+
     /**
      * Uploads a profile image for a user.
      *

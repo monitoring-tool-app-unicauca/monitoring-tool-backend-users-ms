@@ -84,6 +84,17 @@ public class UserRest {
     }
 
     /**
+     * Gets all users by role.
+     * @return A response containing the list of all users by role.
+     */
+    @GetMapping("/by-role")
+    public ResponseEntity<ResponseDto<Page<UserDto>>> getAllUsersByRole(
+            @RequestParam Long roleId,
+            @PageableDefault(size = 5, sort = "documentNumber", direction = Sort.Direction.ASC) Pageable pageable) {
+        return userBusiness.getAllUsersByRole(roleId, pageable).of();
+    }
+
+    /**
      * Gets a user by their ID.
      * @param userId The ID of the user to fetch.
      * @return A response containing the user data.

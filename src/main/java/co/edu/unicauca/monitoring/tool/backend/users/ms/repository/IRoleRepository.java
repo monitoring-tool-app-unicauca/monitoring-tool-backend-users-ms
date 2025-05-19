@@ -1,8 +1,9 @@
 package co.edu.unicauca.monitoring.tool.backend.users.ms.repository;
 
 import co.edu.unicauca.monitoring.tool.backend.users.ms.model.Role;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
 
 /**
  * A repository interface for User entities.
@@ -17,4 +18,6 @@ public interface IRoleRepository extends JpaRepository<Role, Long> {
    * @return An {@link Optional} containing the role if found, or empty if not found.
    */
   Optional<Role> findByNameIgnoreCase(final String name);
+
+
 }

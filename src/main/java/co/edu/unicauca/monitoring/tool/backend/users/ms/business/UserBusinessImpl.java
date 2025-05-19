@@ -136,6 +136,15 @@ public class UserBusinessImpl implements IUserBusiness, UserDetailsService {
     }
 
     @Override
+    public ResponseDto<Page<UserDto>> getAllUsersByRole(Long roleId, Pageable pageable) {
+        Page<UserDto> usersResponse = userRepository.findByRoles_RoleId(roleId, pageable)
+                .map(userMapper::toDto);
+        logger.info("All users by role have been fetched!");
+        return new ResponseDto<>(HttpStatus.OK.value(),
+                MessageLoader.getInstance().getMessage(MessagesConstants.IM001), usersResponse);
+    }
+
+    @Override
     public ResponseDto<Void> uploadProfileImage(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessRuleException(HttpStatus.OK.value(),
