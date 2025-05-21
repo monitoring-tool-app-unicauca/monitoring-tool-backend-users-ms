@@ -6,15 +6,18 @@ import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.PasswordRecoveryN
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.ResponseDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.To;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.UserDto;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.domain.WelcomePasswordNotificationDto;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.exception.BusinessRuleException;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.mapper.IUserMapper;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.model.PasswordRecovery;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.model.User;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.publisher.IPasswordRecoveryPublisher;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.publisher.IWelcomePasswordPublisher;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IPasswordRecoveryRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IRoleRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.repository.IUserRepository;
 import co.edu.unicauca.monitoring.tool.backend.users.ms.util.MessagesConstants;
+import co.edu.unicauca.monitoring.tool.backend.users.ms.util.PasswordGeneratorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -48,6 +51,7 @@ public class UserBusinessImpl implements IUserBusiness, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final IPasswordRecoveryPublisher passwordRecoveryPublisher;
     private final IPasswordRecoveryRepository passwordRecoveryRepository;
+    private final IWelcomePasswordPublisher welcomePasswordPublisher;
     @Value("${domain.password.notification.url}")
     private String domainNotificationUrl;
     @Value("${domain.password.notification.expires}")
@@ -57,9 +61,16 @@ public class UserBusinessImpl implements IUserBusiness, UserDetailsService {
     public ResponseDto<UserDto> createUser(UserDto payload) {
         validateEmailUniqueness(payload.getEmail());
         User user = userMapper.toDomain(payload);
-        user.setPassword(passwordEncoder.encode(payload.getPassword()));
+        var generatedPassword = PasswordGeneratorUtil.generatePassword();
+        user.setPassword(passwordEncoder.encode(generatedPassword));
         updateUserData(user, payload);
-        return saveAndRespond(user, HttpStatus.CREATED, MessagesConstants.IM002);
+        var userSaved = saveAndRespond(user, HttpStatus.CREATED, MessagesConstants.IM002);
+        this.welcomePasswordPublisher.publish(WelcomePasswordNotificationDto.builder()
+                .generatedPassword(generatedPassword)
+                .recipient(To.builder().name(userSaved.getData().getName())
+                        .email(userSaved.getData().getEmail())
+                        .build()).build());
+        return userSaved;
     }
 
     @Override
