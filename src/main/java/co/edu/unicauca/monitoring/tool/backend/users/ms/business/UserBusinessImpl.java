@@ -265,6 +265,8 @@ public class UserBusinessImpl implements IUserBusiness, UserDetailsService {
                     MessagesConstants.EM021, MessageLoader.getInstance()
                     .getMessage(MessagesConstants.EM021, payload.getToken()));
         }
+        passwordRecovery.setExpires(now);
+        this.passwordRecoveryRepository.save(passwordRecovery);
         user.setPassword(this.passwordEncoder.encode(payload.getPassword()));
         final var userSaved = this.userRepository.save(user);
         return saveAndRespond(userSaved, HttpStatus.OK, MessagesConstants.IM003);
