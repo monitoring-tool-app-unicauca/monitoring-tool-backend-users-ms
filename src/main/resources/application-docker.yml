@@ -1,0 +1,48 @@
+server:
+  port: ${USERS_PORT}
+  servlet:
+    context-path: /monitoring-tool-users-ms
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      schema: ${DB_SCHEMA}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASSWORD}
+
+logging:
+  level:
+    root: ${DEBUG_LEVEL}
+jwt:
+  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET}
+
+domain:
+  password:
+    notification:
+      url: ${NOTIFICATION_URL}
+      expires: ${NOTIFICATION_EXPIRES}
+admin:
+  email: ${ADMIN_EMAIL}
+  name: ${ADMIN_NAME}
+  lastname: ${ADMIN_LASTNAME}
+  document: ${ADMIN_DOCUMENT}
+  phone: ${ADMIN_PHONE}
