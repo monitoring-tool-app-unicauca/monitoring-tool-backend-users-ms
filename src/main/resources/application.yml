@@ -3,6 +3,8 @@ server:
   servlet:
     context-path: /monitoring-tool-users-ms
 
+
+
 spring:
   servlet:
     multipart:
